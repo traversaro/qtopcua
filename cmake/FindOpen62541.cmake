@@ -21,31 +21,44 @@
 # ``open62541``
 #     The open62541 library
 
-find_path(Open62541_INCLUDE_DIRS
-    NAMES open62541.h
-    HINTS "${OPEN62541_INCDIR}")
+# first try to find the official open62541 CMake config files
+find_package(open62541 NO_MODULE QUIET)
+set(Open62541_FOUND ${open62541_FOUND})
 
-find_library(Open62541_LIBRARIES
-    NAMES open62541
-    HINTS "${OPEN62541_LIBDIR}")
+if (NOT TARGET open62541::open62541)
+    find_path(Open62541_INCLUDE_DIRS
+        NAMES open62541.h
+        HINTS "${OPEN62541_INCDIR}")
 
-if (NOT Open62541_INCLUDE_DIRS STREQUAL "Open62541_INCLUDE_DIRS-NOTFOUND" AND NOT Open62541_LIBRARIES STREQUAL "Open62541_LIBRARIES-NOTFOUND")
+    find_library(Open62541_LIBRARIES
+        NAMES open62541
+        HINTS "${OPEN62541_LIBDIR}")
+    mark_as_advanced(Open62541_INCLUDE_DIRS Open62541_LIBRARIES)
+else()
+  get_property(Open62541_INCLUDE_DIRS TARGET open62541::open62541 PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+  set(Open62541_LIBRARIES open62541::open62541)
+endif()
+
+if (NOT Open62541_FOUND AND NOT Open62541_INCLUDE_DIRS STREQUAL "Open62541_INCLUDE_DIRS-NOTFOUND" AND NOT Open62541_LIBRARIES STREQUAL "Open62541_LIBRARIES-NOTFOUND")
     set(Open62541_FOUND ON)
 endif()
 
 if (Open62541_FOUND)
-    add_library(open62541 UNKNOWN IMPORTED)
-    set_target_properties(open62541 PROPERTIES
-        IMPORTED_LOCATION "${Open62541_LIBRARIES}"
-        INTERFACE_INCLUDE_DIRECTORIES "${Open62541_INCLUDE_DIRS}")
+    if(NOT TARGET open62541::open62541)
+        add_library(open62541 UNKNOWN IMPORTED)
+        set_target_properties(open62541 PROPERTIES
+            IMPORTED_LOCATION "${Open62541_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${Open62541_INCLUDE_DIRS}")
 
-    if (WIN32)
-        set_property(TARGET open62541 APPEND PROPERTY
-            INTERFACE_LINK_LIBRARIES ws2_32)
+        if (WIN32)
+            set_property(TARGET open62541 APPEND PROPERTY
+                INTERFACE_LINK_LIBRARIES ws2_32)
+        endif()
+    else()
+        add_library(open62541 ALIAS open62541::open62541)
     endif()
 endif()
 
-mark_as_advanced(Open62541_INCLUDE_DIRS Open62541_LIBRARIES)
 
 include(FeatureSummary)
 set_package_properties(Open62541 PROPERTIES

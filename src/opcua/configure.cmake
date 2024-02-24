@@ -29,7 +29,8 @@ if (INPUT_open62541 STREQUAL "system")
             open62541
         CODE
     "#include <stdio.h>
-    #include <open62541.h>
+    #include <open62541/client_config_default.h>
+    #include <open62541/client_highlevel.h>
 
     int main(int argc, char *argv[])
     {
@@ -88,7 +89,7 @@ int main(int /*argc*/, char ** /*argv*/)
 # Find out if the system open62541 is built with encryption support
 include(CheckSymbolExists)
 if (Open62541_FOUND)
-    check_symbol_exists(UA_ENABLE_ENCRYPTION ${Open62541_INCLUDE_DIRS}/open62541.h OPEN62541_SYSTEM_ENCRYPTION)
+    check_symbol_exists(UA_ENABLE_ENCRYPTION ${Open62541_INCLUDE_DIRS}/open62541/config.h OPEN62541_SYSTEM_ENCRYPTION)
 endif()
 
 #### Features

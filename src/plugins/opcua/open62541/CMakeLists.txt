@@ -88,7 +88,7 @@ endif()
 
 qt_internal_extend_target(QOpen62541Plugin CONDITION QT_FEATURE_system_open62541 OR NOT QT_FEATURE_open62541
     LIBRARIES
-        open62541
+        open62541::open62541
 )
 
 #qt_internal_extend_target(QOpen62541Plugin CONDITION WIN32 AND MSVC AND (QT_FEATURE_system_open62541 OR NOT QT_FEATURE_open62541)
